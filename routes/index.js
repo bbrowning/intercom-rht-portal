@@ -123,7 +123,9 @@ router.post('/submit', async (req, res, next) => {
 router.post('/sheet', async (req, res, next) => {
   console.log("request json: %j", req.body);
 
-  // https://access.redhat.com/solutions/5034771
+  console.log("current_canvas: %j", req.body?.intercom_data?.current_canvas);
+  console.log("stored_data: %j", req.body?.intercom_data?.current_canvas?.stored_data);
+  console.log("component_id: %j", req.body?.intercom_data?.component_id);
 
   const searchResults = req.body?.intercom_data?.current_canvas?.stored_data;
   const componentId = req.body?.intercom_data?.component_id;
