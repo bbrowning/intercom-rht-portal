@@ -34,6 +34,7 @@ router.post('/initialize', (req, res) => {
 
 router.post('/submit', (req, res) => {
   console.log("request json: %j", req.body);
+  console.log("input values: %j", req.body.input_values);
   res.json({
     canvas: {
       content: {
@@ -58,7 +59,7 @@ router.post('/submit', (req, res) => {
           },
           {
 		        "type": "text",
-  	        "text": "*Search results:'*",
+  	        "text": "*Search results:*",
   		      "style": "paragraph"
 	        },
           {
