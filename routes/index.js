@@ -35,6 +35,36 @@ router.post('/initialize', (req, res, next) => {
   });
 });
 
+router.post('/sheet', async (req, res, next) => {
+  console.log("request json: %j", req.body);
+
+  // https://access.redhat.com/solutions/5034771
+
+  res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sheet 1</title>
+  <!-- Adding the Messenger Sheet Library -->
+  <script src="https://s3.amazonaws.com/intercom-sheets.com/messenger-sheet-library.latest.js"></script>
+</head>
+<body>
+  <button id="done">Done</button>
+
+  <!-- Example of using a Messenger Sheet Library method -->
+  <script>
+    const done = document.querySelector('#done');
+    done.addEventListener('click', () => {
+      INTERCOM_MESSENGER_SHEET_LIBRARY.submitSheet({ super: "secret" });
+    });
+  </script>
+
+  <h1>Hi there</h1>
+</body>
+</html>
+  `);
+});
+
 router.post('/submit', async (req, res, next) => {
   console.log("request json: %j", req.body);
   console.log("input values: %j", req.body.input_values);
@@ -59,7 +89,7 @@ router.post('/submit', async (req, res, next) => {
       "subtitle": "",
       "action": {
         "type": "sheet",
-        "url": doc.view_uri
+        "url": `${req.get('host')}/sheet`
       }
     }
   });
