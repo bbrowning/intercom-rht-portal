@@ -89,7 +89,7 @@ router.post('/submit', async (req, res, next) => {
       "subtitle": "",
       "action": {
         "type": "sheet",
-        "url": `${req.get('host')}/sheet`
+        "url": `https://${req.get('host')}/sheet`
       }
     }
   });
