@@ -128,7 +128,7 @@ router.post('/sheet', async (req, res, next) => {
   console.log("stored_data: %j", data.current_canvas?.stored_data);
   console.log("component_id: %j", data.component_id);
 
-  const searchResults = data.current_canvas?.stored_data;
+  const searchResults = data.current_canvas?.stored_data?.searchResults;
   const componentId = data.component_id;
   if (!searchResults || !componentId) {
     res.status(500).send("Something went wrong");
