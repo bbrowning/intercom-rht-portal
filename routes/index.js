@@ -15,12 +15,12 @@ router.post('/initialize', (req, res, next) => {
       content: {
         components: [
           {
-		        "type": "text",
+            "type": "text",
             "text": "Search the customer portal",
             "style": "header"
           },
           {
-		        "type": "input",
+            "type": "input",
             "id": "portal-search",
             "placeholder": "Search for answers...",
             "style": "secondary",
