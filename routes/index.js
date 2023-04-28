@@ -42,9 +42,9 @@ router.post('/submit', async (req, res, next) => {
   const searchStr = req.body.input_values["portal-search"];
   const searchQuery = querystring.stringify({
     q: searchStr,
-    fq: "documentKind:Solution",
-    fl: "id,publishedTitle,view_uri",
-    rows: 3,
+    fq: `documentKind:Solution AND product:"Red Hat OpenShift Service on AWS"`,
+    fl: "id,publishedTitle,view_uri,documentKind,product",
+    rows: 4,
   });
   const searchResponse = await axios.get(`https://access.redhat.com/hydra/rest/search/kcs?${searchQuery}`, {
     headers: {
