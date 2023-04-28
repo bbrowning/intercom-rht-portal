@@ -123,12 +123,13 @@ router.post('/submit', async (req, res, next) => {
 router.post('/sheet', async (req, res, next) => {
   console.log("request json: %j", req.body);
 
-  console.log("current_canvas: %j", req.body?.intercom_data?.current_canvas);
-  console.log("stored_data: %j", req.body?.intercom_data?.current_canvas?.stored_data);
-  console.log("component_id: %j", req.body?.intercom_data?.component_id);
+  const data = JSON.parse(req.body?.intercom_data);
+  console.log("current_canvas: %j", data.current_canvas);
+  console.log("stored_data: %j", data.current_canvas?.stored_data);
+  console.log("component_id: %j", data.component_id);
 
-  const searchResults = req.body?.intercom_data?.current_canvas?.stored_data;
-  const componentId = req.body?.intercom_data?.component_id;
+  const searchResults = data.current_canvas?.stored_data;
+  const componentId = data.component_id;
   if (!searchResults || !componentId) {
     res.status(500).send("Something went wrong");
     return;
