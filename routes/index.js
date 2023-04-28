@@ -1,11 +1,14 @@
 var express = require('express');
+var querystring = require('querystring');
 var router = express.Router();
+
+const axios = require('axios');
 
 router.get('/', (req, res) => {
   res.json({ hello: 'world' });
 });
 
-router.post('/initialize', (req, res) => {
+router.post('/initialize', (req, res, next) => {
   console.log("request json: %j", req.body);
   res.json({
     canvas: {
@@ -32,9 +35,36 @@ router.post('/initialize', (req, res) => {
   });
 });
 
-router.post('/submit', (req, res) => {
+router.post('/submit', async (req, res, next) => {
   console.log("request json: %j", req.body);
   console.log("input values: %j", req.body.input_values);
+
+  const searchStr = req.body.input_values["article-search"];
+  // const searchQuery = querystring.stringify({"q": searchStr});
+  const searchResponse = await axios.post(`https://api.access.redhat.com/support/search/v2/kcs`, {
+    q: searchStr,
+    rows: 3,
+  }, {
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+  console.log("search response: %j", searchResponse.data);
+
+  const searchResults = searchResponse.data?.response?.docs?.map(doc => {
+    return {
+      "type": "item",
+      "id": doc.id,
+      "title": doc.publishedTitle,
+      "subtitle": "",
+      "action": {
+        "type": "sheet",
+        "url": doc.view_uri
+      }
+    }
+  });
+  console.log("search results array: %j", searchResults);
+  
   res.json({
     canvas: {
       content: {
@@ -47,7 +77,7 @@ router.post('/submit', (req, res) => {
           {
 		        "type": "input",
             "id": "article-search",
-            "placeholder": "Search for answers...",
+            "value": searchStr,
             "style": "secondary",
             "action": {
               "type": "submit"
@@ -64,26 +94,7 @@ router.post('/submit', (req, res) => {
 	        },
           {
             "type": "list",
-            "items": [
-              {
-                "type": "item",
-                "id": "list-item-1",
-                "title": "Item 1",
-                "subtitle": "With Action",
-                "action": {
-                  "type": "submit"
-                }
-              },
-              {
-                "type": "item",
-                "id": "list-item-2",
-                "title": "Item 2",
-                "subtitle": "With Action",
-                "action": {
-                  "type": "submit"
-                }
-              },
-            ]
+            "items": searchResults
           }
         ]
       },
