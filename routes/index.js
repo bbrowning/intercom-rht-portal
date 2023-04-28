@@ -9,19 +9,19 @@ router.get('/', (req, res) => {
 });
 
 router.post('/initialize', (req, res, next) => {
-  console.log("request json: %j", req.body);
+  // console.log("request json: %j", req.body);
   res.json({
     canvas: {
       content: {
         components: [
           {
 		        "type": "text",
-            "text": "Find an answer quickly",
+            "text": "Search the customer portal",
             "style": "header"
           },
           {
 		        "type": "input",
-            "id": "article-search",
+            "id": "portal-search",
             "placeholder": "Search for answers...",
             "style": "secondary",
             "action": {
@@ -36,19 +36,31 @@ router.post('/initialize', (req, res, next) => {
 });
 
 router.post('/submit', async (req, res, next) => {
-  console.log("request json: %j", req.body);
-  console.log("input values: %j", req.body.input_values);
+  // console.log("request json: %j", req.body);
+  // console.log("input values: %j", req.body.input_values);
 
-  const searchStr = req.body.input_values["article-search"];
-  // const searchQuery = querystring.stringify({"q": searchStr});
-  const searchResponse = await axios.post(`https://api.access.redhat.com/support/search/v2/kcs`, {
+  const searchStr = req.body.input_values["portal-search"];
+  const searchQuery = querystring.stringify({
     q: searchStr,
+    fq: "documentKind:Solution",
+    fl: "id,publishedTitle,view_uri",
     rows: 3,
-  }, {
+  });
+  const searchResponse = await axios.get(`https://access.redhat.com/hydra/rest/search/kcs?${searchQuery}`, {
     headers: {
       "Content-Type": "application/json"
     }
   });
+  // const searchResponse = await axios.post(`https://access.redhat.com/hydra/rest/search/v2/kcs`, {
+  //   q: searchStr,
+  //   fq: "documentKind:Solution",
+  //   fl: "id,publishedTitle,view_uri",
+  //   rows: 3,
+  // }, {
+  //   headers: {
+  //     "Content-Type": "application/json"
+  //   }
+  // });
   console.log("search response: %j", searchResponse.data);
 
   const docs = searchResponse.data?.response?.docs;
@@ -65,8 +77,10 @@ router.post('/submit', async (req, res, next) => {
         "title": doc.publishedTitle,
         "subtitle": "",
         "action": {
-          "type": "sheet",
-          "url": `https://${req.get('host')}/sheet`
+          // "type": "sheet",
+          // "url": `https://${req.get('host')}/sheet`
+          "type": "url",
+          "url": doc.view_uri
         }
       }
     });
@@ -79,8 +93,8 @@ router.post('/submit', async (req, res, next) => {
     });
   }
 
-  console.log("search results array: %j", searchResults);
-  console.log("stored search data: %j", storedSearch);
+  // console.log("search results array: %j", searchResults);
+  // console.log("stored search data: %j", storedSearch);
   
   res.json({
     canvas: {
@@ -88,12 +102,12 @@ router.post('/submit', async (req, res, next) => {
         components: [
           {
 		        "type": "text",
-            "text": "Find an answer quickly",
+            "text": "Search the customer portal",
             "style": "header"
           },
           {
 		        "type": "input",
-            "id": "article-search",
+            "id": "portal-search",
             "value": searchStr,
             "style": "secondary",
             "action": {
@@ -120,6 +134,8 @@ router.post('/submit', async (req, res, next) => {
   });
 });
 
+// For now, the sheet stuff below is unused and we'll
+// just open in a new tab
 router.post('/sheet', async (req, res, next) => {
   console.log("request json: %j", req.body);
 
