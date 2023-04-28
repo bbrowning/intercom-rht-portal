@@ -125,8 +125,8 @@ router.post('/sheet', async (req, res, next) => {
 
   // https://access.redhat.com/solutions/5034771
 
-  const searchResults = req.body?.current_canvas?.content?.stored_data;
-  const componentId = req.body?.component_id;
+  const searchResults = req.body?.intercom_data?.current_canvas?.content?.stored_data;
+  const componentId = req.body?.intercom_data?.component_id;
   if (!searchResults || !componentId) {
     res.status(500).send("Something went wrong");
     return;
