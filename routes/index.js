@@ -14,13 +14,13 @@ function portalSearchComponents(value) {
   return [
     {
       "type": "text",
-      "text": "Search the customer portal",
+      "text": "Find answers and guidance",
       "style": "header"
     },
     {
       "type": "input",
       "id": "portal-search",
-      "placeholder": value ? "" : "Search for answers...",
+      "placeholder": value ? "" : "Search the customer portal",
       "value": value ? value : "",
       "style": "secondary",
       "action": {
