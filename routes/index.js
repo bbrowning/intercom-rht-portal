@@ -39,10 +39,14 @@ router.post('/submit', async (req, res, next) => {
   // console.log("request json: %j", req.body);
   // console.log("input values: %j", req.body.input_values);
 
+  // TODO: Use browser language in the language filter below?
+  // Showing results in multiple different languages is confusing, but
+  // hardcoding en is also bad
+
   const searchStr = req.body.input_values["portal-search"];
   const searchQuery = querystring.stringify({
     q: searchStr,
-    fq: `product:"Red Hat OpenShift Service on AWS"`,
+    fq: `language:en AND product:"Red Hat OpenShift Service on AWS"`,
     fl: "id,publishedTitle,view_uri,documentKind,product",
     rows: 4,
   });
