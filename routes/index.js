@@ -4,38 +4,77 @@ var router = express.Router();
 
 const axios = require('axios');
 
+// unused except for manual testing / health check
 router.get('/', (req, res) => {
-  res.json({ hello: 'world' });
+  res.json({ ok: 'true' });
 });
+
+
+function portalSearchComponents(value) {
+  return [
+    {
+      "type": "text",
+      "text": "Search the customer portal",
+      "style": "header"
+    },
+    {
+      "type": "input",
+      "id": "portal-search",
+      "placeholder": value ? "" : "Search for answers...",
+      "value": value ? value : "",
+      "style": "secondary",
+      "action": {
+        "type": "submit"
+      }
+    }
+  ];
+}
 
 router.post('/initialize', (req, res, next) => {
   // console.log("request json: %j", req.body);
   res.json({
     canvas: {
       content: {
-        components: [
-          {
-            "type": "text",
-            "text": "Search the customer portal",
-            "style": "header"
-          },
-          {
-            "type": "input",
-            "id": "portal-search",
-            "placeholder": "Search for answers...",
-            "style": "secondary",
-            "action": {
-              "type": "submit"
-            }
-          }
-        ]
+        components: portalSearchComponents()
       },
       stored_data: { "key": "value" } //Can be more than one pair
     }
   });
 });
 
-router.post('/submit', async (req, res, next) => {
+router.post('/submit', (req, res, next) => {
+  switch (req.body?.component_id) {
+  case "portal-search":
+    submitPortalSearch(req, res, next);
+    break;
+  default:
+    submitErrorResponse(req, res, next, "Sorry, an error occured.");
+  }
+});
+
+function submitErrorResponse(req, res, next, message) {
+  var components = portalSearchComponents();
+  components = components.concat([
+    {
+      "type": "spacer",
+      "size": "s"
+    },
+    {
+      "type": "text",
+      "text": message,
+      "style": "paragraph"
+	  }
+  ]);
+  res.json({
+    canvas: {
+      content: {
+        components: components
+      }
+    }
+  });
+}
+
+async function submitPortalSearch(req, res, next) {
   // console.log("request json: %j", req.body);
   // console.log("input values: %j", req.body.input_values);
 
@@ -44,6 +83,10 @@ router.post('/submit', async (req, res, next) => {
   // hardcoding en is also bad
 
   const searchStr = req.body.input_values["portal-search"];
+  if (!searchStr) {
+    return submitErrorResponse(req, res, next, "");
+  }
+
   const searchQuery = querystring.stringify({
     q: searchStr,
     fq: `language:en AND product:"Red Hat OpenShift Service on AWS"`,
@@ -99,44 +142,32 @@ router.post('/submit', async (req, res, next) => {
 
   // console.log("search results array: %j", searchResults);
   // console.log("stored search data: %j", storedSearch);
-  
+
+  var components = portalSearchComponents(searchStr);
+  components = components.concat([
+    {
+      "type": "spacer",
+      "size": "s"
+    },
+    {
+      "type": "text",
+      "text": "*Search results:*",
+      "style": "paragraph"
+	  },
+    {
+      "type": "list",
+      "items": searchResults
+    }
+  ]);
   res.json({
     canvas: {
       content: {
-        components: [
-          {
-		        "type": "text",
-            "text": "Search the customer portal",
-            "style": "header"
-          },
-          {
-		        "type": "input",
-            "id": "portal-search",
-            "value": searchStr,
-            "style": "secondary",
-            "action": {
-              "type": "submit"
-            }
-          },
-          {
-            "type": "spacer",
-            "size": "s"
-          },
-          {
-		        "type": "text",
-  	        "text": "*Search results:*",
-  		      "style": "paragraph"
-	        },
-          {
-            "type": "list",
-            "items": searchResults
-          }
-        ]
+        components: components
       },
       stored_data: { "searchResults": storedSearch }
     }
   });
-});
+}
 
 // For now, the sheet stuff below is unused and we'll
 // just open in a new tab
