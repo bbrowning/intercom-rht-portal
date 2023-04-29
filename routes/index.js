@@ -42,8 +42,8 @@ router.post('/initialize', (req, res, next) => {
 });
 
 router.post('/submit', (req, res, next) => {
-  console.log(req.body?.component_id);
-  console.log(req.body?.input_values);
+  // console.log(req.body?.component_id);
+  // console.log(req.body?.input_values);
   switch (req.body?.component_id) {
   case "portal-search":
   case "portal-search-pagination":
@@ -98,7 +98,7 @@ async function submitPortalSearch(req, res, next) {
   var prevSearchStart = req.body.current_canvas?.stored_data?.searchStart;
   const isPaginating = req.body?.component_id == "portal-search-pagination";
   const pageDirection = req.body.input_values["portal-search-pagination"] || "";
-  console.log("isPaginating: %s, pageDirection: %s", isPaginating, pageDirection);
+  // console.log("isPaginating: %s, pageDirection: %s", isPaginating, pageDirection);
   var searchStart = 0;
   if (!prevSearchStart) {
     prevSearchStart = 0;
@@ -111,7 +111,7 @@ async function submitPortalSearch(req, res, next) {
   } else if (pageDirection == "next") {
     searchStart = prevSearchStart + searchResultsPerPage;
   }
-  console.log("searchStart: %s", searchStart);
+  // console.log("searchStart: %s", searchStart);
 
   const searchQuery = querystring.stringify({
     q: searchStr,
