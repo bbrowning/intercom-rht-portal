@@ -42,10 +42,13 @@ router.post('/initialize', (req, res, next) => {
 });
 
 router.post('/submit', (req, res, next) => {
+  console.log(req.body?.component_id);
+  console.log(req.body?.input_values);
   switch (req.body?.component_id) {
   case "portal-search":
   case "portal-search-next":
   case "portal-search-prev":
+  case "portal-search-pagination":
     submitPortalSearch(req, res, next);
     break;
   case "clear-portal-search":
@@ -183,7 +186,7 @@ async function submitPortalSearch(req, res, next) {
     },
     {
       "type": "single-select",
-      "id": "search-pagination",
+      "id": "portal-search-pagination",
       "options": [
         {
           "type": "option",
