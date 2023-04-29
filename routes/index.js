@@ -43,7 +43,7 @@ router.post('/submit', async (req, res, next) => {
   const searchQuery = querystring.stringify({
     q: searchStr,
     fq: `documentKind:Solution AND product:"Red Hat OpenShift Service on AWS"`,
-    fl: "id,publishedTitle,view_uri,documentKind,product",
+    fl: "id,publishedTitle,view_uri,documentKind,product,abstract",
     rows: 4,
   });
   const searchResponse = await axios.get(`https://access.redhat.com/hydra/rest/search/kcs?${searchQuery}`, {
@@ -75,7 +75,7 @@ router.post('/submit', async (req, res, next) => {
         "type": "item",
         "id": doc.id,
         "title": doc.publishedTitle,
-        "subtitle": "",
+        "subtitle": doc.abstract,
         "action": {
           // "type": "sheet",
           // "url": `https://${req.get('host')}/sheet`
