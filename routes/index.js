@@ -46,8 +46,6 @@ router.post('/submit', (req, res, next) => {
   console.log(req.body?.input_values);
   switch (req.body?.component_id) {
   case "portal-search":
-  case "portal-search-next":
-  case "portal-search-prev":
   case "portal-search-pagination":
     submitPortalSearch(req, res, next);
     break;
@@ -98,18 +96,22 @@ async function submitPortalSearch(req, res, next) {
 
   // Handle pagination
   var prevSearchStart = req.body.current_canvas?.stored_data?.searchStart;
+  const isPaginating = req.body?.component_id == "portal-search-pagination";
+  const pageDirection = req.body.input_values["portal-search-pagination"] || "";
+  console.log("isPaginating: %s, pageDirection: %s", isPaginating, pageDirection);
   var searchStart = 0;
   if (!prevSearchStart) {
     prevSearchStart = 0;
   }
-  if (prevSearchStart > 0 && req.body.component_id == "portal-search-prev") {
+  if (prevSearchStart > 0 && pageDirection == "previous") {
     searchStart = prevSearchStart - searchResultsPerPage;
     if (searchStart < 0) {
       searchStart = 0;
     }
-  } else if (req.body.component_id == "portal-search-next") {
+  } else if (pageDirection == "next") {
     searchStart = prevSearchStart + searchResultsPerPage;
   }
+  console.log("searchStart: %s", searchStart);
 
   const searchQuery = querystring.stringify({
     q: searchStr,
@@ -190,13 +192,13 @@ async function submitPortalSearch(req, res, next) {
       "options": [
         {
           "type": "option",
-          "id": "portal-search-prev",
+          "id": "previous",
           "text": "Previous",
           "disabled": searchStart < 1
         },
         {
           "type": "option",
-          "id": "portal-search-next",
+          "id": "next",
           "text": "Next",
           "disabled": searchStart + searchResultsPerPage > numResults
         }
