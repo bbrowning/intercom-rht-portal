@@ -36,8 +36,7 @@ router.post('/initialize', (req, res, next) => {
     canvas: {
       content: {
         components: portalSearchComponents()
-      },
-      stored_data: { "key": "value" } //Can be more than one pair
+      }
     }
   });
 });
@@ -46,6 +45,9 @@ router.post('/submit', (req, res, next) => {
   switch (req.body?.component_id) {
   case "portal-search":
     submitPortalSearch(req, res, next);
+    break;
+  case "clear-portal-search":
+    clearPortalSearch(eq, res, next);
     break;
   default:
     submitErrorResponse(req, res, next, "Sorry, an error occured.");
@@ -157,6 +159,15 @@ async function submitPortalSearch(req, res, next) {
     {
       "type": "list",
       "items": searchResults
+    },
+    {
+      "type": "button",
+      "id": "clear-portal-search",
+      "label": "Clear Results",
+      "style": "link",
+      "action": {
+        "type": "submit"
+      }
     }
   ]);
   res.json({
@@ -165,6 +176,16 @@ async function submitPortalSearch(req, res, next) {
         components: components
       },
       stored_data: { "searchResults": storedSearch }
+    }
+  });
+}
+
+function clearPortalSearch(req, res, next) {
+  res.json({
+    canvas: {
+      content: {
+        components: portalSearchComponents()
+      }
     }
   });
 }
