@@ -197,7 +197,10 @@ async function submitPortalSearch(req, res, next) {
           "text": "Next",
           "disabled": searchStart + searchResultsPerPage > numResults
         }
-      ]
+      ],
+      "action": {
+        "type": "submit"
+      }
     },
     {
       "type": "button",
