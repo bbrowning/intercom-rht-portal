@@ -47,7 +47,7 @@ router.post('/submit', (req, res, next) => {
     submitPortalSearch(req, res, next);
     break;
   case "clear-portal-search":
-    clearPortalSearch(eq, res, next);
+    clearPortalSearch(req, res, next);
     break;
   default:
     submitErrorResponse(req, res, next, "Sorry, an error occured.");
