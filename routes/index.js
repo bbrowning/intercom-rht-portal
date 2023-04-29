@@ -79,7 +79,7 @@ function submitErrorResponse(req, res, next, message) {
   });
 }
 
-const searchResultsPerPage = 3;
+const searchResultsPerPage = 4;
 
 async function submitPortalSearch(req, res, next) {
   // console.log("request json: %j", req.body);
