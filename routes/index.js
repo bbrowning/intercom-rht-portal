@@ -44,6 +44,8 @@ router.post('/initialize', (req, res, next) => {
 router.post('/submit', (req, res, next) => {
   switch (req.body?.component_id) {
   case "portal-search":
+  case "portal-search-next":
+  case "portal-search-prev":
     submitPortalSearch(req, res, next);
     break;
   case "clear-portal-search":
@@ -76,6 +78,8 @@ function submitErrorResponse(req, res, next, message) {
   });
 }
 
+const searchResultsPerPage = 3;
+
 async function submitPortalSearch(req, res, next) {
   // console.log("request json: %j", req.body);
   // console.log("input values: %j", req.body.input_values);
@@ -89,11 +93,27 @@ async function submitPortalSearch(req, res, next) {
     return submitErrorResponse(req, res, next, "");
   }
 
+  // Handle pagination
+  var prevSearchStart = req.body.current_canvas?.stored_data?.searchStart;
+  var searchStart = 0;
+  if (!prevSearchStart) {
+    prevSearchStart = 0;
+  }
+  if (prevSearchStart > 0 && req.body.component_id == "portal-search-prev") {
+    searchStart = prevSearchStart - searchResultsPerPage;
+    if (searchStart < 0) {
+      searchStart = 0;
+    }
+  } else if (req.body.component_id == "portal-search-next") {
+    searchStart = prevSearchStart + searchResultsPerPage;
+  }
+
   const searchQuery = querystring.stringify({
     q: searchStr,
     fq: `language:en AND product:"Red Hat OpenShift Service on AWS"`,
     fl: "id,publishedTitle,view_uri,documentKind,product",
-    rows: 4,
+    start: searchStart,
+    rows: searchResultsPerPage
   });
   const searchResponse = await axios.get(`https://access.redhat.com/hydra/rest/search/kcs?${searchQuery}`, {
     headers: {
@@ -110,12 +130,13 @@ async function submitPortalSearch(req, res, next) {
   //     "Content-Type": "application/json"
   //   }
   // });
-  console.log("search response: %j", searchResponse.data);
+  // console.log("search response: %j", searchResponse.data);
 
+  const numResults = searchResponse.data?.response?.numFound;
   const docs = searchResponse.data?.response?.docs;
   var searchResults;
   var storedSearch;
-  if (!docs) {
+  if (!docs || !numResults) {
     searchResults = [];
     storedSearch = {};
   } else {
@@ -161,6 +182,24 @@ async function submitPortalSearch(req, res, next) {
       "items": searchResults
     },
     {
+      "type": "single-select",
+      "id": "search-pagination",
+      "options": [
+        {
+          "type": "option",
+          "id": "portal-search-prev",
+          "text": "Previous",
+          "disabled": searchStart < 1
+        },
+        {
+          "type": "option",
+          "id": "portal-search-next",
+          "text": "Next",
+          "disabled": searchStart + searchResultsPerPage > numResults
+        }
+      ]
+    },
+    {
       "type": "button",
       "id": "clear-portal-search",
       "label": "Clear Results",
@@ -175,7 +214,7 @@ async function submitPortalSearch(req, res, next) {
       content: {
         components: components
       },
-      stored_data: { "searchResults": storedSearch }
+      stored_data: { "searchResults": storedSearch, "searchStart": searchStart }
     }
   });
 }
